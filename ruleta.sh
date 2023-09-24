@@ -31,26 +31,69 @@ function martingala() {
   echo -ne "\n${yellowColour}[?]${endColour} ${grayColour}How much money do you want to bet? -> ${endColour}" && read INITIAL_BET
   echo -ne "${yellowColour}[?]${endColour} ${grayColour}What's your bet? [even|odd] -> ${endColour}" && read BET_TARGET
 
-  echo -e "\n${yellowColour}[+]${endColour} ${grayColour}You are going to bet${endColour} ${blueColour}$INITIAL_BET${endColour} ${grayColour}to${endColour} ${blueColour}$BET_TARGET${endColour}"
+  echo -e "${yellowColour}[+]${endColour} ${grayColour}You are going to bet${endColour} ${blueColour}$INITIAL_BET${endColour} ${grayColour}to${endColour} ${blueColour}$BET_TARGET${endColour}\n"
 
   tput civis
+  CURRENT_BET=$INITIAL_BET
+  declare -i PLAY_COUNTER=0
+  MAX_AMOUNT=$MONEY
+
   while true; do 
     ROULETTE_NUMBER="$(($RANDOM % 37))"
-
+    MONEY=$(($MONEY-$CURRENT_BET))
+    echo -e "\n${yellowColour}[+]${endColour} ${grayColour}You have bet${endColour} ${blueColour}$CURRENT_BET${endColour}${grayColour}, now you have${endColour} ${blueColour}$MONEY${endColour}"
     echo -e "${yellowColour}[+]${endColour} ${grayColour}Number: ${endColour} ${blueColour}$ROULETTE_NUMBER${endColour}"
-    
+   
+    if [ $MONEY -le 0 ]; then
+      echo -e "\n\n${redColour}You run out of money. You lose.${endColour}\n\n";
+      echo -e "${yellowColour}[+]${endColour} ${grayColour}You played a total of${endColour} ${blueColour}$PLAY_COUNTER${endColour} ${grayColour}times.${endColour}";
+      echo -e "${yellowColour}[+]${endColour} ${grayColour}You earned a max amount${endColour} ${blueColour}$MAX_AMOUNT${endColour}\n";
+      tput cnorm
+      exit 0
+    fi
+
     if [ $ROULETTE_NUMBER -eq 0 ]; then
       echo -e "${redColour}[-] 0, you loose${endColour}\n"
+      CURRENT_BET=$(($CURRENT_BET*2))
+      sleep 0
+
       continue
     fi
 
-    if [ $(($ROULETTE_NUMBER % 2)) -eq 0 ]; then
-      echo -e "${yellowColour}[+] Even${endColour}\n"
-    else  
-      echo -e "${yellowColour}[+] Odd${endColour}\n"
+    if [ "$BET_TARGET" == "even" ]; then
+      if [ $(($ROULETTE_NUMBER % 2)) -eq 0 ]; then
+        REWARD=$(($CURRENT_BET*2))
+        MONEY=$(($MONEY+$REWARD))
+        CURRENT_BET=$INITIAL_BET
+        
+        if [ $MONEY -gt $MAX_AMOUNT ]; then
+          MAX_AMOUNT=$MONEY
+        fi
+
+        echo -e "${greenColour}[+] You win${endColour} ${blueColour}$REWARD${endColour}, ${grayColour}now you have${endColour} ${blueColour}$MONEY${endColour}\n"
+      else  
+        echo -e "${redColour}[-] You lose ${endColour}\n"
+        CURRENT_BET=$(($CURRENT_BET*2))
+      fi
+    else
+      if [ $(($ROULETTE_NUMBER % 2)) -eq 0 ]; then
+        echo -e "${redColour}[-] You lose${endColour}\n"
+        CURRENT_BET=$(($INITIAL_BET*2))
+      else  
+        REWARD=$(($CURRENT_BET*2))
+        MONEY=$(($MONEY+$REWARD))
+        CURRENT_BET=$INITIAL_BET
+        
+        if [ $MONEY -gt $MAX_AMOUNT ]; then
+          MAX_AMOUNT=$MONEY
+        fi
+
+        echo -e "${greenColour}[+] You win ${endColour} ${blueColour}$REWARD${endColour}, ${grayColour}now you have${endColour} ${blueColour}$MONEY${endColour}\n"
+      fi
     fi
 
-    sleep 0.4
+    PLAY_COUNTER+=1
+    sleep 0
   done
 
   tput cnorm
