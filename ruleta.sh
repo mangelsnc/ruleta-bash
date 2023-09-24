@@ -35,14 +35,10 @@ function martingala() {
 
   tput civis
   CURRENT_BET=$INITIAL_BET
-  declare -i PLAY_COUNTER=0
+  declare -i PLAY_COUNTER=1
   MAX_AMOUNT=$MONEY
 
   while true; do 
-    ROULETTE_NUMBER="$(($RANDOM % 37))"
-    MONEY=$(($MONEY-$CURRENT_BET))
-    echo -e "\n${yellowColour}[+]${endColour} ${grayColour}You have bet${endColour} ${blueColour}$CURRENT_BET${endColour}${grayColour}, now you have${endColour} ${blueColour}$MONEY${endColour}"
-    echo -e "${yellowColour}[+]${endColour} ${grayColour}Number: ${endColour} ${blueColour}$ROULETTE_NUMBER${endColour}"
    
     if [ $MONEY -le 0 ]; then
       echo -e "\n\n${redColour}You run out of money. You lose.${endColour}\n\n";
@@ -51,6 +47,11 @@ function martingala() {
       tput cnorm
       exit 0
     fi
+
+    ROULETTE_NUMBER="$(($RANDOM % 37))"
+    MONEY=$(($MONEY-$CURRENT_BET))
+    echo -e "\n${yellowColour}[+]${endColour} ${grayColour}You have bet${endColour} ${blueColour}$CURRENT_BET${endColour}${grayColour}, now you have${endColour} ${blueColour}$MONEY${endColour}"
+    echo -e "${yellowColour}[+]${endColour} ${grayColour}Number: ${endColour} ${blueColour}$ROULETTE_NUMBER${endColour}"
 
     if [ $ROULETTE_NUMBER -eq 0 ]; then
       echo -e "${redColour}[-] 0, you loose${endColour}\n"
